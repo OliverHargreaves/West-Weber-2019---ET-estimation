@@ -10,280 +10,146 @@ library(multcompView)
 library(tidyverse)
 
 # Load the data and define the variables for sensor 101####
-setwd("C:/User/Graduate/Box/DiviningWater/West Weber 2019/Soil sensor data/Sensor 101") # set the working directory in the folder containing the data file
-data.101=read_excel("DailySM.101.xlsx") # load the SM data from excel
-data.101=na.omit(data.101) # eliminate the days with no data
+# setwd("C:/User/Graduate/Box/DiviningWater/West Weber 2019/Soil sensor data/Sensor 101") # set the working directory in the folder containing the data file
+data=read_excel("DailySM.101.xlsx") # load the SM data from excel
+data=na.omit(data) # eliminate the days with no data
 
-n=length(data.101$Date.101) # Number of days with data
-ETo=data.101$ETo_mm         # Reference ET (mm)
-
-# Sensor depth (mm)
-sd1=sd2=sd3=7*25.4        # sensor 1, 2 and 3: from surface to 7"
-sd4=sd5=sd6=(7+9)*25.4    # sensor 4, 5 and 6: from 7" to 16"
-sd7=sd8=sd9=(7+9+13)*25.4 # sensor 7, 8 and 9: from 16" to 29"
-sd10=(7+9+13+14)*25.4     # sensor 10: from 29" to 43"
+n=length(data$Date) # Number of days with data
+ETo=data$ETo_mm         # Reference ET (mm)
 
 # Soil moisture - volumetric water content %
-sm1=data.101$sm1.101
-sm2=data.101$sm2.101
-sm3=data.101$sm3.101
-sm4=data.101$sm4.101
-sm5=data.101$sm5.101
-sm6=data.101$sm6.101
-sm7=data.101$sm7.101
-sm8=data.101$sm8.101
-sm9=data.101$sm9.101
-sm10=data.101$sm10.101
+sm1=data$sm1.101
+sm2=data$sm2.101
+sm3=data$sm3.101
+sm4=data$sm4.101
+sm5=data$sm5.101
+sm6=data$sm6.101
+sm7=data$sm7.101
+sm8=data$sm8.101
+sm9=data$sm9.101
+sm10=data$sm10.101
+# Soil moisture averages
+sm7=(sm1*11.5+sm2*11.5+sm3*16)/(11.5+11.5+16)   # 7" depth
+sm16=(sm4*11.5+sm5*11.5+sm6*16)/(11.5+11.5+16)  # 16" depth
+sm29=(sm7*11.5+sm8*11.5+sm9*16)/(11.5+11.5+16)  # 29" depth
+sm43=sm10                                       # 43" depth
 
 # Plot daily soil moisture data
-# Left side of the bed
-plot (data.101$Date.101, sm1, ylim=c(0, 60), type='l', lwd=3, col='coral3', 
-      main='Daily SM - Left side of the bed', xlab='', ylab='Soil water content (%)') 
-lines(data.101$Date.101, sm4, type='l', lwd=3, col='steelblue3')
-lines(data.101$Date.101, sm7, type='l', lwd=3, col='gold3')
-lines(data.101$Date.101, sm10, type='l', lwd=3, col='olivedrab3')
-legend('bottom', lty=1, lwd=3, legend=c('Sensor 1: 7"','Sensor 4: 16"','Sensor 7: 29"','Sensor 10: 43"'), col = c('coral3','steelblue3','gold3','olivedrab3'), ncol=2)
-# Right side of the bed
-plot (data.101$Date.101, sm2, ylim=c(0, 60), type='l', lwd=3, col='coral3', 
-      main='Daily SM - Right side of the bed', xlab='', ylab='Soil water content (%)') 
-lines(data.101$Date.101, sm5, type='l', lwd=3, col='steelblue3')
-lines(data.101$Date.101, sm8, type='l', lwd=3, col='gold3')
-lines(data.101$Date.101, sm10, type='l', lwd=3, col='olivedrab3')
-legend('bottom', lty=1, lwd=3, legend=c('Sensor 2: 7"','Sensor 5: 16"','Sensor 8: 29"','Sensor 10: 43"'), col = c('coral3','steelblue3','gold3','olivedrab3'), ncol=2)
-# Furrow
-plot (data.101$Date.101, sm3, ylim=c(0, 60), type='l', lwd=3, col='coral3', 
-      main='Daily SM - Furrow', xlab='', ylab='Soil water content (%)') 
-lines(data.101$Date.101, sm6, type='l', lwd=3, col='steelblue3')
-lines(data.101$Date.101, sm9, type='l', lwd=3, col='gold3')
-lines(data.101$Date.101, sm10, type='l', lwd=3, col='olivedrab3')
-legend('bottom', lty=1, lwd=3, legend=c('Sensor 3: 7"','Sensor 6: 16"','Sensor 9: 29"','Sensor 10: 43"'), col = c('coral3','steelblue3','gold3','olivedrab3'), ncol=2)
+plot (data$Date, sm7, ylim=c(20, 50), type='l', lwd=3, col='coral3', 
+      main='Daily soil moisture', xlab='', ylab='Soil water content (%)') 
+lines(data$Date, sm16, type='l', lwd=3, col='steelblue3')
+lines(data$Date, sm29, type='l', lwd=3, col='gold3')
+lines(data$Date, sm43, type='l', lwd=3, col='olivedrab3')
+legend('bottom', lty=1, lwd=3, inset=0.02,
+       legend=c('7"','16"','29"','43"'), col = c('coral3','steelblue3','gold3','olivedrab3'), ncol=4)
 
 # Root depth (mm)
-rd=data.101$Zr
+rd=data$Zr
+
+# Sensor depth (mm)
+sd7=7*25.4        # sensor 1, 2 and 3: from surface to 7"
+sd16=(7+9)*25.4    # sensor 4, 5 and 6: from 7" to 16"
+sd29=(7+9+13)*25.4 # sensor 7, 8 and 9: from 16" to 29"
+sd43=(7+9+13+14)*25.4     # sensor 10: from 29" to 43"
 
 # plot root depth with sensor depth
-plot(data.101$Date.101, -rd, 
+plot(data$Date, -rd, 
      type='h', col='deeppink4', lwd='3', ylim=c(-1200, 0),
      main='Onion root depth, West Weber 2019', ylab='Soil depth (mm)', xlab=NA)
 abline(h=0, lwd=3)
-abline(h=-sd1, col='coral3', lwd=3)
-abline(h=-sd4, col='steelblue3', lwd=3)
-abline(h=-sd7, col='gold3', lwd=3)
-abline(h=-sd10, col='olivedrab3', lwd=3)
-legend('bottomleft', inset=0.02, lty=1, lwd=3, legend=c('Sensor 1, 2, 3: 7"','Sensor 4, 5, 6: 16"','Sensor 7, 8, 9: 29"','Sensor 10: 43"'), col=c('coral3','steelblue3','gold3','olivedrab3'), ncol=1)
-
+abline(h=-sd7, col='coral3', lwd=3)
+abline(h=-sd16, col='steelblue3', lwd=3)
+abline(h=-sd29, col='gold3', lwd=3)
+abline(h=-sd43, col='olivedrab3', lwd=3)
+legend('bottomleft', inset=0.02, lty=1, lwd=3, legend=c('7"','16"','29"','43"'), col=c('coral3','steelblue3','gold3','olivedrab3'), ncol=1)
 
 # Method A: Water balance on the soil profile as a whole ####
 # This method estimates ET (mm/day) by applying the water balance method to the 
 # entire soil profile at once.
 
-# Left side of the onion bed 
 # Total water content (mm) of the soil profile
-wc.1=(sm1*sd1+sm4*sd4+sm7*sd7+sm10*sd10)/100
+wc=(sm7*sd7+sm16*(sd16-sd7)+sm29*(sd29-sd16)+sm43*(sd43-sd29))/100
 
 # ET estimation
-ET.A.L=c()
+ET.A=c()
 for(i in 2:n) { 
-  ET.A.L[i]=wc.1[i-1]-wc.1[i]}
+  ET.A[i]=wc[i-1]-wc[i]}
 for(i in 2:n) { # eliminate negative ET contributions
-  if (ET.A.L[i]<0) {ET.A.L[i]=0}}         
-plot(data.101$Date.101, ET.A.L, 
-     type='h', lwd=2,
-     main='ET from the left side of the bed', xlab='', ylab='ET (mm)')
+  if (ET.A[i]<0) {ET.A[i]=0}}  
 
-# Right side of the onion bed 
-# Total water content (mm) of the soil profile
-wc.2=(sm2*sd2+sm5*sd5+sm8*sd8+sm10*sd10)/100
+ET.A[ET.A==0]=NA
 
-# ET estimation
-ET.A.R=c()
-for(i in 2:n) { 
-  ET.A.R[i]=wc.2[i-1]-wc.2[i]}
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET.A.R[i]<0) {ET.A.R[i]=0}}         
-plot(data.101$Date.101, ET.A.R, 
-     type='h', lwd=2,
-     main='ET from right side of the bed', xlab='', ylab='ET (mm)')
-
-# Furrow to the right of the onion bed 
-# Total water content (mm) of the soil profile
-wc.3=(sm3*sd3+sm6*sd6+sm9*sd9+sm10*sd10)/100
-
-# ET estimation
-ET.A.F=c()
-for(i in 2:n) { 
-  ET.A.F[i]=wc.3[i-1]-wc.3[i]}
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET.A.F[i]<0) {ET.A.F[i]=0}}         
-plot(data.101$Date.101, ET.A.F, 
-     type='h', lwd=2,
-     main='ET from the furrow', xlab='', ylab='ET (mm)')
+plot(data$Date, ET.A, 
+     type='h', lwd=3, col='deepskyblue3',
+     main='ET - Method A', xlab='', ylab='ET (mm)')
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
 
 # Method B: Water balance on each sensors soil depth NOT accounting for root growth ####
 # This method estimates ET (mm/day) by applying the water balance to each soil
 # layer and then adds them all up after having eliminated all negative 
 # contributions. Method B does not account for root growth throughout the season.
 
-# ET from soil depth 1
-ET1.101=c() 
+# ET from soil depth 7"
+ET.B.7=c() 
 for(i in 2:n) { 
-  ET1.101[i]=(sm1[i-1]-sm1[i])/100*sd1}
+  ET.B.7[i]=(sm7[i-1]-sm7[i])/100*sd7}
 for(i in 2:n) { # eliminate negative ET values
-  if (ET1.101[i]<0) {ET1.101[i]=0}}         
-plot(data.101$Date.101, ET1.101, 
+  if (ET.B.7[i]<0) {ET.B.7[i]=0}}         
+plot(data$Date, ET.B.7, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 1', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 7"', xlab='', ylab='ET (mm)')
 
-# ET from soil depth 2
-ET2.101=c() 
+# ET from soil depth 16"
+ET.B.16=c()
 for(i in 2:n) { 
-  ET2.101[i]=(sm2[i-1]-sm2[i])/100*sd2}
+  ET.B.16[i]=(sm16[i-1]-sm16[i])/100*(sd16-sd7)}
 for(i in 2:n) { # eliminate negative ET contributions
-  if (ET2.101[i]<0) {ET2.101[i]=0}}         
-plot(data.101$Date.101, ET2.101, 
+  if (ET.B.16[i]<0) {ET.B.16[i]=0}}         
+plot(data$Date, ET.B.16, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 2', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 16"', xlab='', ylab='ET (mm)')
 
-# ET from soil depth 3
-ET3.101=c()
-for(i in 2:n) { 
-  ET3.101[i]=(sm3[i-1]-sm3[i])/100*sd3}
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET3.101[i]<0) {ET3.101[i]=0}}         
-plot(data.101$Date.101, ET3.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 3', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 4
-ET4.101=c()
-for(i in 2:n) { 
-  ET4.101[i]=(sm4[i-1]-sm4[i])/100*(sd4-sd1)}
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET4.101[i]<0) {ET4.101[i]=0}}         
-plot(data.101$Date.101, ET4.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 4', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 5
-ET5.101=c() 
-for(i in 2:n) { 
-  ET5.101[i]=(sm5[i-1]-sm5[i])/100*(sd5-sd2)}
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET5.101[i]<0) {ET5.101[i]=0}}         
-plot(data.101$Date.101, ET5.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 5', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 6
-ET6.101=c()
+# ET from soil depth 29"
+ET.B.29=c()
 for(i in 2:n) {
-  ET6.101[i]=(sm6[i-1]-sm6[i])/100*(sd6-sd3) }
+  ET.B.29[i]=(sm29[i-1]-sm29[i])/100*(sd29-sd16) }
 for(i in 2:n) { # eliminate negative ET contributions
-  if (ET6.101[i]<0) {ET6.101[i]=0}}         
-plot(data.101$Date.101, ET6.101, 
+  if (ET.B.29[i]<0) {ET.B.29[i]=0} }         
+plot(data$Date, ET.B.29, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 6', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 29"', xlab='', ylab='ET (mm)')
 
-# ET from soil depth 7
-ET7.101=c()
+# ET from soil depth 43"
+ET.B.43=c()
 for(i in 2:n) {
-  ET7.101[i]=(sm7[i-1]-sm7[i])/100*(sd7-sd4) }
+  ET.B.43[i]=(sm43[i-1]-sm43[i])/100*(sd43-sd29) }
 for(i in 2:n) { # eliminate negative ET contributions
-  if (ET7.101[i]<0) {ET7.101[i]=0} }         
-plot(data.101$Date.101, ET7.101, 
+  if (ET.B.43[i]<0) {ET.B.43[i]=0} }         
+plot(data$Date, ET.B.43, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 7', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 43"', xlab='', ylab='ET (mm)')
 
-# ET from soil depth 8
-ET8.101=c()
-for(i in 2:n) {
-  ET8.101[i]=(sm8[i-1]-sm8[i])/100*(sd8-sd5) }
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET8.101[i]<0) {ET8.101[i]=0} }         
-plot(data.101$Date.101, ET8.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 8', xlab='', ylab='ET (mm)')
+# Total ET 
+ET.B=ET.B.7+ET.B.16+ET.B.29+ET.B.43
+ET.B[1]=NA # can't calculate ET the first day
+ET.B[ET.B==0]=NA
 
-# ET from soil depth 9
-ET9.101=c()
-for(i in 2:n) {
-  ET9.101[i]=(sm9[i-1]-sm9[i])/100*(sd9-sd6) }
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET9.101[i]<0) {ET9.101[i]=0} }         
-plot(data.101$Date.101, ET9.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 9', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 10
-ET10.101=c()
-for(i in 2:n) {
-  ET10.101[i]=(sm10[i-1]-sm10[i])/100*(sd10-sd9) }
-for(i in 2:n) { # eliminate negative ET contributions
-  if (ET10.101[i]<0) {ET10.101[i]=0} }         
-plot(data.101$Date.101, ET10.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 10', xlab='', ylab='ET (mm)')
-
-# Total ET for the left side of the onion bed
-ET.B.L=ET1.101+ET4.101+ET7.101+ET10.101
-ET.B.L[1]=NA # can't calculate ET the first day
-plot(data.101$Date.101, ET.B.L,
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET for the left side of the bed', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
+plot(data$Date, ET.B,
+     type='h', col='deepskyblue3', lwd=2,
+     main='Daily ET - method B', xlab='', ylab='ET (mm)')
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'deepskyblue3'), lwd=2, inset=0.02)
 
 # Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,7,4,1))
-ET=c(ET10.101, ET7.101, ET4.101, ET1.101)
+x=data$Date
+y=paste('soil depth', c('43"', '29"', '16"', '7"'))
+ET=c(ET.B.43, ET.B.29, ET.B.16, ET.B.7)
 ET[ET==0]=NA # turns zeros into NAs
 heatmap.data=expand.grid(x=x, y=y)
 ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
   geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) for the left side of the bed') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the right side of the onion bed
-ET.B.R=ET2.101+ET5.101+ET8.101+ET10.101
-ET.B.R[1]=NA # can't calculate ET the first day
-plot(data.101$Date.101, ET.B.R,
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET for the right side of the bed', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,8,5,2))
-ET=c(ET10.101, ET8.101, ET5.101, ET2.101)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) for the right side of the bed') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the furrow
-ET.B.F=ET3.101+ET6.101+ET9.101+ET10.101
-ET.B.F[1]=NA # can't calculate ET the first day
-plot(data.101$Date.101, ET.B.F,
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET for the furrow', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,8,5,2))
-ET=c(ET10.101, ET9.101, ET6.101, ET3.101)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) for the furrow') +
+  labs(x='', y='', title='Daily ET (mm) - method B') +
   scale_fill_viridis(direction=-1, na.value='white') +
   theme_ipsum()
 
@@ -297,232 +163,92 @@ RD=c()
 for(i in 2:n) {
   RD[i]=(rd[i-1]+rd[i])/2} # average root depth of yesterday and today
 
-# Sub-station 1
-
-# ET from soil depth 1
-ET1.101=c()
+# ET from soil depth 7"
+ET.C.7=c()
 for(i in 2:n) {
-  if (RD[i] < sd1) {
-    ET1.101[i]=(sm1[i-1]-sm1[i])/100*RD[i] }
+  if (RD[i] < sd7) {
+    ET.C.7[i]=(sm7[i-1]-sm7[i])/100*RD[i] }
   else {
-    ET1.101[i]=(sm1[i-1]-sm1[i])/100*sd1}}
+    ET.C.7[i]=(sm7[i-1]-sm7[i])/100*sd7}}
 # eliminate negative ET contributions
 for(i in 2:n) { 
-  if (ET1.101[i]<0) {ET1.101[i]=0}}         
+  if (ET.C.7[i]<0) {ET.C.7[i]=0}}         
 
-plot(data.101$Date.101, ET1.101, 
+plot(data$Date, ET.C.7, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 1', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 7"', xlab='', ylab='ET (mm)')
 
-# ET from soil depth 2
-ET2.101=c()
-for(i in 2:n) {
-  if (RD[i] < sd2) {
-    ET2.101[i]=(sm2[i-1]-sm2[i])/100*RD[i] }
-  else {
-    ET2.101[i]=(sm2[i-1]-sm2[i])/100*sd2}}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET2.101[i]<0) {ET2.101[i]=0}}         
-
-plot(data.101$Date.101, ET2.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 2', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 3
-ET3.101=c()
-for(i in 2:n) {
-  if (RD[i] < sd3) {
-    ET3.101[i]=(sm3[i-1]-sm3[i])/100*RD[i] }
-  else {
-    ET3.101[i]=(sm3[i-1]-sm3[i])/100*sd3}}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET3.101[i]<0) {ET3.101[i]=0}}         
-
-plot(data.101$Date.101, ET3.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 3', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 4
-ET4.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd1) {
-    ET4.101[i]=0}
-  else if (sd1 < RD[i] & RD[i] <= sd4) {
-    ET4.101[i]=(sm4[i-1]-sm4[i])/100*(RD[i]-sd1) }
-  else {
-    ET4.101[i]=(sm4[i-1]-sm4[i])/100*(sd4-sd1) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET4.101[i]<0) {ET4.101[i]=0}}    
-
-plot(data.101$Date.101, ET4.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 4', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 5
-ET5.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd2) {
-    ET5.101[i]=0}
-  else if (sd2 < RD[i] & RD[i] <= sd5) {
-    ET5.101[i]=(sm5[i-1]-sm5[i])/100*(RD[i]-sd2) }
-  else {
-    ET5.101[i]=(sm5[i-1]-sm5[i])/100*(sd5-sd2) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET5.101[i]<0) {ET5.101[i]=0}}    
-
-plot(data.101$Date.101, ET5.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 5', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 6
-ET6.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd3) {
-    ET6.101[i]=0}
-  else if (sd3 < RD[i] & RD[i] <= sd6) {
-    ET6.101[i]=(sm6[i-1]-sm6[i])/100*(RD[i]-sd3) }
-  else {
-    ET6.101[i]=(sm6[i-1]-sm6[i])/100*(sd6-sd3) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET6.101[i]<0) {ET6.101[i]=0}}    
-
-plot(data.101$Date.101, ET6.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 6', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 7
-ET7.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd4) {
-    ET7.101[i]=0}
-  else if (sd4 < RD[i] & RD[i] <= sd7) {
-    ET7.101[i]=(sm7[i-1]-sm7[i])/100*(RD[i]-sd4) }
-  else {
-    ET7.101[i]=(sm7[i-1]-sm7[i])/100*(sd7-sd4) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET7.101[i]<0) {ET7.101[i]=0} }   
-
-plot(data.101$Date.101, ET7.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 7', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 8
-ET8.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd5) {
-    ET8.101[i]=0}
-  else if (sd5 < RD[i] & RD[i] <= sd8) {
-    ET8.101[i]=(sm8[i-1]-sm8[i])/100*(RD[i]-sd5) }
-  else {
-    ET8.101[i]=(sm8[i-1]-sm8[i])/100*(sd8-sd5) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET8.101[i]<0) {ET8.101[i]=0} }   
-
-plot(data.101$Date.101, ET8.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 8', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 9
-ET9.101=c()
-for(i in 2:n) {
-  if (RD[i] <= sd6) {
-    ET9.101[i]=0}
-  else if (sd6 < RD[i] & RD[i] <= sd9) {
-    ET9.101[i]=(sm9[i-1]-sm9[i])/100*(RD[i]-sd6) }
-  else {
-    ET9.101[i]=(sm9[i-1]-sm9[i])/100*(sd9-sd6) }}
-# eliminate negative ET contributions
-for(i in 2:n) { 
-  if (ET9.101[i]<0) {ET9.101[i]=0} }   
-
-plot(data.101$Date.101, ET9.101, 
-     type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 9', xlab='', ylab='ET (mm)')
-
-# ET from soil depth 10
-ET10.101=c()
+# ET from soil depth 16"
+ET.C.16=c()
 for(i in 2:n) {
   if (RD[i] <= sd7) {
-    ET10.101[i]=0}
-  else if (sd7 < RD[i] & RD[i] <= sd7) {
-    ET10.101[i]=(sm10[i-1]-sm10[i])/100*(RD[i]-sd7) }
+    ET.C.16[i]=0}
+  else if (sd7 < RD[i] & RD[i] <= sd16) {
+    ET.C.16[i]=(sm16[i-1]-sm16[i])/100*(RD[i]-sd7) }
   else {
-    ET10.101[i]=(sm10[i-1]-sm10[i])/100*(sd10-sd7) }}
+    ET.C.16[i]=(sm16[i-1]-sm16[i])/100*(sd16-sd7) }}
 # eliminate negative ET contributions
 for(i in 2:n) { 
-  if (ET10.101[i]<0) {ET10.101[i]=0} }   
+  if (ET.C.16[i]<0) {ET.C.16[i]=0}}    
 
-plot(data.101$Date.101, ET10.101, 
+plot(data$Date, ET.C.16, 
      type='h', lwd=2, ylim=c(0, 10),
-     main='ET from soil depth 10', xlab='', ylab='ET (mm)')
+     main='ET from soil depth 16"', xlab='', ylab='ET (mm)')
 
-# Total ET for left side
-ET.C.L=ET1.101+ET4.101+ET7.101+ET10.101
-plot(data.101$Date.101, ET.C.L,
+# ET from soil depth 29"
+ET.C.29=c()
+for(i in 2:n) {
+  if (RD[i] <= sd16) {
+    ET.C.29[i]=0}
+  else if (sd16 < RD[i] & RD[i] <= sd29) {
+    ET.C.29[i]=(sm29[i-1]-sm29[i])/100*(RD[i]-sd16) }
+  else {
+    ET.C.29[i]=(sm29[i-1]-sm29[i])/100*(sd29-sd16) }}
+# eliminate negative ET contributions
+for(i in 2:n) { 
+  if (ET.C.29[i]<0) {ET.C.29[i]=0} }   
+
+plot(data$Date, ET.C.29, 
+     type='h', lwd=2, ylim=c(0, 10),
+     main='ET from soil depth 29"', xlab='', ylab='ET (mm)')
+
+# ET from soil depth 43"
+ET.C.43=c()
+for(i in 2:n) {
+  if (RD[i] <= sd29) {
+    ET.C.43[i]=0}
+  else if (sd29 < RD[i] & RD[i] <= sd29) {
+    ET.C.43[i]=(sm43[i-1]-sm43[i])/100*(RD[i]-sd29) }
+  else {
+    ET.C.43[i]=(sm43[i-1]-sm43[i])/100*(sd43-sd29) }}
+# eliminate negative ET contributions
+for(i in 2:n) { 
+  if (ET.C.43[i]<0) {ET.C.43[i]=0} }   
+
+plot(data$Date, ET.C.43, 
+     type='h', lwd=2, ylim=c(0, 10),
+     main='ET from soil depth 43"', xlab='', ylab='ET (mm)')
+
+# Total ET
+ET.C=ET.C.7+ET.C.16+ET.C.29+ET.C.43
+ET.C[ET.C==0]=NA
+
+plot(data$Date, ET.C,
      ylim=c(0, 15),
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET - left side', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
+     type='h', col='deepskyblue3', lwd=3,
+     main='Daily ET - method C', xlab='', ylab='ET (mm)')
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'deepskyblue3'), lwd=3, inset=0.02)
 
 # Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10, 7, 4, 1))
-ET=c(ET10.101, ET7.101, ET4.101, ET1.101)
+x=data$Date
+y=paste('soil depth', c('43"', '29"', '16"', '7"'))
+ET=c(ET.C.43, ET.C.29, ET.C.16, ET.C.7)
 ET[ET==0]=NA # turns zeros into NAs
 heatmap.data=expand.grid(x=x, y=y)
 ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
   geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - left side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for right side
-ET.C.R=ET2.101+ET5.101+ET8.101+ET10.101
-plot(data.101$Date.101, ET.C.R,
-     ylim=c(0, 15),
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET - right side', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10, 8, 5, 2))
-ET=c(ET10.101, ET8.101, ET5.101, ET2.101)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - right side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the furrow
-ET.C.F=ET3.101+ET6.101+ET9.101+ET10.101
-plot(data.101$Date.101, ET.C.F,
-     ylim=c(0, 15),
-     type='h', col='darkslategray4', lwd=2,
-     main='Daily ET - right side', xlab='', ylab='ET (mm)')
-lines(data.101$Date.101, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
-legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10, 9, 6, 3))
-ET=c(ET10.101, ET9.101, ET6.101, ET3.101)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - furrow') +
+  labs(x='', y='', title='Daily ET (mm) - method C') +
   scale_fill_viridis(direction=-1, na.value='white') +
   theme_ipsum()
 
@@ -534,9 +260,8 @@ ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
 
 w=3 # window used to calculate the derivatives in days
 
-# Left side of the onion bed
 # Total water content (mm) of the soil profile
-wc.L=(sm1*sd1+sm4*(sd4-sd1)+sm7*(sd7-sd4)+sm10*(sd10-sd7))/100
+wc=(sm7*sd7+sm16*(sd16-sd7)+sm29*(sd29-sd16)+sm43*(sd43-sd29))/100
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -544,7 +269,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=wc.L[low_val:hig_val]
+  y=wc[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -561,125 +286,30 @@ for (i in ((w+1)/2):n) {
   reg=lm(y~x)
   f2[i]=reg$coefficients[2]
 }
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives - left side', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-left=data.frame(Date=data.101$Date.101, SM=wc.L, f1, f2) # data frame with the results for the left side
+method_D=data.frame(Date=data$Date, SM=wc, f1, f2) # data frame with the results for the method_D side
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-left$ET=c(rep(NA, n)) # create ET column
+method_D$ET=c(rep(NA, n)) # create ET column
 for (i in w:(n-w)) {
-  if (left$f1[i]<0 & left$f2[i]>0) {left$ET[i]=abs(left$f1[i])} 
-}
-plot(left$Date, left$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - left side', xlab='', ylab='ET (mm)',
-     ylim=c(0,15))
-ET.D.L=left$ET
-
-# Right side of the onion bed
-# total water content (mm) of the soil profile
-wc.R=(sm2*sd2+sm5*(sd5-sd2)+sm8*(sd8-sd5)+sm10*(sd10-sd8))/100
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=wc.R[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
+  if (method_D$f1[i]<0 & method_D$f2[i]>0) {method_D$ET[i]=abs(method_D$f1[i])} 
 }
 
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives - right side', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
+plot(method_D$Date, method_D$ET,
+     type='h', lwd=3, col='deepskyblue3', ylim=c(0, 12),
+     main='Daily ET - method D', xlab='', ylab='ET (mm)')
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'deepskyblue3'), lwd=2, inset=0.02)
 
-right=data.frame(Date=data.101$Date.101, SM=wc.R, f1, f2) # data frame with the results for the right side
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-right$ET=c(rep(NA, n)) # create ET column
-for (i in w:(n-w)) {
-  if (right$f1[i]<0 & right$f2[i]>0) {right$ET[i]=abs(right$f1[i])} 
-}
-plot(right$Date, right$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - right side', xlab='', ylab='ET (mm)',
-     ylim=c(0,15))
-ET.D.R=right$ET
-
-# Furrow
-# total water content (mm) of the soil profile
-wc.F=(sm3*sd3+sm6*(sd6-sd3)+sm9*(sd9-sd6)+sm10*(sd10-sd9))/100
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=wc.F[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives - furrow', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-furrow=data.frame(Date=data.101$Date.101, SM=wc.F, f1, f2) # data frame with the results for the furrow
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-furrow$ET=c(rep(NA, n)) # create ET column
-for (i in w:(n-w)) {
-  if (furrow$f1[i]<0 & furrow$f2[i]>0) {furrow$ET[i]=abs(furrow$f1[i])} 
-}
-plot(furrow$Date, furrow$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - furrow', xlab='', ylab='ET (mm)',
-     ylim=c(0,15))
-ET.D.F=furrow$ET
+ET.D=method_D$ET
 
 # Method E: Derivatives NOT accounting for root growth####
 # Same as method D but on each soil layer individually and then summed up and not accounting for
@@ -687,8 +317,8 @@ ET.D.F=furrow$ET
 
 w=3 # window used to calculate the derivatives in days
 
-# soil depth 1
-SM1=sm1*sd1/100 # soil moisture (mm)
+# soil depth 7"
+wc7=sm7*sd7/100 # water content (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -697,7 +327,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM1[low_val:hig_val]
+  y=wc7[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -715,30 +345,30 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 1', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 7"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor1=data.frame(Date=data.101$Date.101, SM=SM1, f1, f2) # data frame with the results for sensor1
+method_E_7=data.frame(Date=data$Date, SM=sm7, f1, f2) # data frame with the results for method_E_7
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor1$ET=c(rep(NA, n)) # create ET column
+method_E_7$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor1$f1[i]<0 & sensor1$f2[i]>0) {sensor1$ET[i]=abs(sensor1$f1[i])} 
+  if (method_E_7$f1[i]<0 & method_E_7$f2[i]>0) {method_E_7$ET[i]=abs(method_E_7$f1[i])} 
 }
-sensor1$ET[is.na(sensor1$ET)]=0 # replaces NA values with zero
-plot(sensor1$Date, sensor1$ET,
+method_E_7$ET[is.na(method_E_7$ET)]=0 # replaces NA values with zero
+plot(method_E_7$Date, method_E_7$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 1', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 7"', xlab='', ylab='ET (mm)',
      ylim=c(0,10))
 
-# soil depth 2
-SM2=sm2*sd2/100 # soil moisture (mm)
+# soil depth 16"
+wc16=sm16*(sd16-sd7)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -747,7 +377,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM2[low_val:hig_val]
+  y=wc16[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -765,130 +395,30 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 16"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor2=data.frame(Date=data.101$Date.101, SM=SM2, f1, f2) # data frame with the results for sensor2
+method_E_16=data.frame(Date=data$Date, wc=wc16, f1, f2) # data frame with the results for method_E_16
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor2$ET=c(rep(NA, n)) # create ET column
+method_E_16$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor2$f1[i]<0 & sensor2$f2[i]>0) {sensor2$ET[i]=abs(sensor2$f1[i])} 
+  if (method_E_16$f1[i]<0 & method_E_16$f2[i]>0) {method_E_16$ET[i]=abs(method_E_16$f1[i])} 
 }
-sensor2$ET[is.na(sensor2$ET)]=0 # replaces NA values with zero
-plot(sensor2$Date, sensor2$ET,
+method_E_16$ET[is.na(method_E_16$ET)]=0 # replaces NA values with zero
+plot(method_E_16$Date, method_E_16$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET from - soil depth 2', xlab='', ylab='ET (mm)',
-     ylim=c(0,10))
-
-# soil depth 3
-SM3=sm3*sd3/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM3[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 3', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor3=data.frame(Date=data.101$Date.101, SM=SM3, f1, f2) # data frame with the results for sensor3
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor3$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor3$f1[i]<0 & sensor3$f2[i]>0) {sensor3$ET[i]=abs(sensor3$f1[i])} 
-}
-sensor3$ET[is.na(sensor3$ET)]=0 # replaces NA values with zero
-plot(sensor3$Date, sensor3$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 3', xlab='', ylab='ET (mm)',
-     ylim=c(0, 10))
-
-# soil depth 4
-SM4=sm4*(sd4-sd1)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM4[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 4', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor4=data.frame(Date=data.101$Date.101, SM=SM4, f1, f2) # data frame with the results for sensor4
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor4$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor4$f1[i]<0 & sensor4$f2[i]>0) {sensor4$ET[i]=abs(sensor4$f1[i])} 
-}
-sensor4$ET[is.na(sensor4$ET)]=0 # replaces NA values with zero
-plot(sensor4$Date, sensor4$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 4', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 16"', xlab='', ylab='ET (mm)',
      ylim=c(0, 5))
 
-# soil depth 5
-SM5=sm5*(sd5-sd2)/100 # soil moisture (mm)
+# soil depth 29"
+wc29=sm29*(sd29-sd16)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -897,7 +427,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM5[low_val:hig_val]
+  y=wc29[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -915,130 +445,30 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 5', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 29"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor5=data.frame(Date=data.101$Date.101, SM=SM5, f1, f2) # data frame with the results for sensor5
+method_E_29=data.frame(Date=data$Date, wc=wc29, f1, f2) # data frame with the results for method_E_29
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor5$ET=c(rep(NA, n)) # create ET column
+method_E_29$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor5$f1[i]<0 & sensor5$f2[i]>0) {sensor5$ET[i]=abs(sensor5$f1[i])} 
+  if (method_E_29$f1[i]<0 & method_E_29$f2[i]>0) {method_E_29$ET[i]=abs(method_E_29$f1[i])} 
 }
-sensor5$ET[is.na(sensor5$ET)]=0 # replaces NA values with zero
-plot(sensor5$Date, sensor5$ET,
+method_E_29$ET[is.na(method_E_29$ET)]=0 # replaces NA values with zero
+plot(method_E_29$Date, method_E_29$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 5', xlab='', ylab='ET (mm)',
-     ylim=c(0,5))
-
-# soil depth 6
-SM6=sm6*(sd6-sd3)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM6[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 6', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor6=data.frame(Date=data.101$Date.101, SM=SM6, f1, f2) # data frame with the results for sensor6
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor6$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor6$f1[i]<0 & sensor6$f2[i]>0) {sensor6$ET[i]=abs(sensor6$f1[i])} 
-}
-sensor6$ET[is.na(sensor6$ET)]=0 # replaces NA values with zero
-plot(sensor6$Date, sensor6$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET from - soil depth 2', xlab='', ylab='ET (mm)',
-     ylim=c(0,5))
-
-# soil depth 7
-SM7=sm7*(sd7-sd4)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM7[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor7=data.frame(Date=data.101$Date.101, SM=SM7, f1, f2) # data frame with the results for sensor7
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor7$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor7$f1[i]<0 & sensor7$f2[i]>0) {sensor7$ET[i]=abs(sensor7$f1[i])} 
-}
-sensor7$ET[is.na(sensor7$ET)]=0 # replaces NA values with zero
-plot(sensor7$Date, sensor7$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 7', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 29"', xlab='', ylab='ET (mm)',
      ylim=c(0, 5))
 
-# soil depth 8
-SM8=sm8*(sd8-sd5)/100 # soil moisture (mm)
+# soil depth 43"
+wc43=sm43*(sd43-sd29)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -1047,7 +477,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM8[low_val:hig_val]
+  y=wc43[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -1065,191 +495,50 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 43', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor8=data.frame(Date=data.101$Date.101, SM=SM8, f1, f2) # data frame with the results for sensor8
+method_E_43=data.frame(Date=data$Date, wc=wc43, f1, f2) # data frame with the results for method_E_43
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor8$ET=c(rep(NA, n)) # create ET column
+method_E_43$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor8$f1[i]<0 & sensor8$f2[i]>0) {sensor8$ET[i]=abs(sensor8$f1[i])} 
+  if (method_E_43$f1[i]<0 & method_E_43$f2[i]>0) {method_E_43$ET[i]=abs(method_E_43$f1[i])} 
 }
-sensor8$ET[is.na(sensor8$ET)]=0 # replaces NA values with zero
-plot(sensor8$Date, sensor8$ET,
+method_E_43$ET[is.na(method_E_43$ET)]=0 # replaces NA values with zero
+plot(method_E_43$Date, method_E_43$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 8', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 43"', xlab='', ylab='ET (mm)',
      ylim=c(0, 5))
 
-# soil depth 9
-SM9=sm9*(sd9-sd6)/100 # soil moisture (mm)
+# Total ET 
+ET.E=method_E_7$ET+
+     method_E_16$ET+
+     method_E_29$ET+
+     method_E_43$ET
+ET.E[ET.E==0]=NA
 
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM9[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor9=data.frame(Date=data.101$Date.101, SM=SM9, f1, f2) # data frame with the results for sensor9
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor9$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor9$f1[i]<0 & sensor9$f2[i]>0) {sensor9$ET[i]=abs(sensor9$f1[i])} 
-}
-sensor9$ET[is.na(sensor9$ET)]=0 # replaces NA values with zero
-plot(sensor9$Date, sensor9$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 9', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
-
-# soil depth 10
-SM10=sm10*(sd10-sd7)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM10[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor10=data.frame(Date=data.101$Date.101, SM=SM10, f1, f2) # data frame with the results for sensor10
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor10$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor10$f1[i]<0 & sensor10$f2[i]>0) {sensor10$ET[i]=abs(sensor10$f1[i])} 
-}
-sensor10$ET[is.na(sensor10$ET)]=0 # replaces NA values with zero
-plot(sensor10$Date, sensor10$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 10', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
-
-# Total ET for the left side of the onion bed
-ET.E.L=sensor1$ET+
-       sensor4$ET+
-       sensor7$ET+
-       sensor10$ET
-plot(data.101$Date.101, ET.E.L, 
-     type='h', lwd=2,
-     main='Daily ET - left side', xlab='', ylab='ET (mm)',
-     ylim=c(0,8))
+plot(data$Date, ET.E, 
+     type='h', lwd=3, col='deepskyblue3', ylim=c(0,12),
+     main='Daily ET - method E', xlab='', ylab='ET (mm)')
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
 
 # Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,7,4,1))
-ET=c(sensor10$ET, sensor7$ET, sensor4$ET, sensor1$ET)
+x=data$Date
+y=paste('soil depth', c('43"', '29"', '16"', '7"'))
+ET=c(method_E_43$ET, method_E_29$ET, method_E_16$ET, method_E_7$ET)
 ET[ET==0]=NA # turns zeros into NAs
 heatmap.data=expand.grid(x=x, y=y)
 ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
   geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - left side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the right side of the onion bed
-ET.E.R=sensor2$ET+
-       sensor5$ET+
-       sensor8$ET+
-       sensor10$ET
-plot(data.101$Date.101, ET.E.R, 
-     type='h', lwd=2,
-     main='Daily ET - right side', xlab='', ylab='ET (mm)',
-     ylim=c(0,8))
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,8,5,2))
-ET=c(sensor10$ET, sensor8$ET, sensor5$ET, sensor2$ET)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - right side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the furrow
-ET.E.F=sensor3$ET+
-       sensor6$ET+
-       sensor9$ET+
-       sensor10$ET
-plot(data.101$Date.101, ET.E.F, 
-     type='h', lwd=2,
-     main='Daily ET - furrow', xlab='', ylab='ET (mm)',
-     ylim=c(0,8))
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,9,6,3))
-ET=c(sensor10$ET, sensor9$ET, sensor6$ET, sensor3$ET)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - furrow') +
+  labs(x='', y='', title='Daily ET (mm) - method E') +
   scale_fill_viridis(direction=-1, na.value='white') +
   theme_ipsum()
 
@@ -1259,7 +548,7 @@ ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
 w=3 # window used to calculate the derivatives in days
 
 # soil depth 1
-SM1=sm1*sd1/100 # soil moisture (mm)
+wc7=sm7*sd7/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -1268,7 +557,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM1[low_val:hig_val]
+  y=wc7[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -1286,30 +575,30 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 1', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 7"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor1=data.frame(Date=data.101$Date.101, SM=SM1, f1, f2) # data frame with the results for sensor1
+Method_F_7=data.frame(Date=data$Date, wc=wc7, f1, f2) # data frame with the results for Method_F_7
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor1$ET=c(rep(NA, n)) # create ET column
+Method_F_7$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor1$f1[i]<0 & sensor1$f2[i]>0) {sensor1$ET[i]=abs(sensor1$f1[i])} 
+  if (Method_F_7$f1[i]<0 & Method_F_7$f2[i]>0) {Method_F_7$ET[i]=abs(Method_F_7$f1[i])} 
 }
-sensor1$ET[is.na(sensor1$ET)]=0 # replaces NA values with zero
-plot(sensor1$Date, sensor1$ET,
+Method_F_7$ET[is.na(Method_F_7$ET)]=0 # replaces NA values with zero
+plot(Method_F_7$Date, Method_F_7$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 1', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 7"', xlab='', ylab='ET (mm)',
      ylim=c(0,10))
 
-# soil depth 2
-SM2=sm2*sd2/100 # soil moisture (mm)
+# soil depth 16"
+wc16=sm16*(sd16-sd7)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -1318,7 +607,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM2[low_val:hig_val]
+  y=wc16[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -1336,136 +625,36 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 2', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 16"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor2=data.frame(Date=data.101$Date.101, SM=SM2, f1, f2) # data frame with the results for sensor2
+Method_F_16=data.frame(Date=data$Date, wc=wc16, f1, f2) # data frame with the results for Method_F_16
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor2$ET=c(rep(NA, n)) # create ET column
+Method_F_16$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor2$f1[i]<0 & sensor2$f2[i]>0) {sensor2$ET[i]=abs(sensor2$f1[i])} 
-}
-sensor2$ET[is.na(sensor2$ET)]=0 # replaces NA values with zero
-plot(sensor2$Date, sensor2$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET from - soil depth 2', xlab='', ylab='ET (mm)',
-     ylim=c(0,10))
-
-# soil depth 3
-SM3=sm3*sd3/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM3[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 3', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor3=data.frame(Date=data.101$Date.101, SM=SM3, f1, f2) # data frame with the results for sensor3
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor3$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor3$f1[i]<0 & sensor3$f2[i]>0) {sensor3$ET[i]=abs(sensor3$f1[i])} 
-}
-sensor3$ET[is.na(sensor3$ET)]=0 # replaces NA values with zero
-plot(sensor3$Date, sensor3$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 3', xlab='', ylab='ET (mm)',
-     ylim=c(0, 10))
-
-# soil depth 4
-SM4=sm4*(sd4-sd1)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM4[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 4', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor4=data.frame(Date=data.101$Date.101, SM=SM4, f1, f2) # data frame with the results for sensor4
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor4$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor4$f1[i]<0 & sensor4$f2[i]>0) {sensor4$ET[i]=abs(sensor4$f1[i])} 
+  if (Method_F_16$f1[i]<0 & Method_F_16$f2[i]>0) {Method_F_16$ET[i]=abs(Method_F_16$f1[i])} 
 }
 
 for (i in 1:n) {
-  if (data.101$Zr[i]<sd1) 
-  {sensor4$ET[i]=NA}
+  if (data$Zr[i]<sd7) 
+  {Method_F_16$ET[i]=NA}
 }
 
-sensor4$ET[is.na(sensor4$ET)]=0 # replaces NA values with zero
-plot(sensor4$Date, sensor4$ET,
+Method_F_16$ET[is.na(Method_F_16$ET)]=0 # replaces NA values with zero
+plot(Method_F_16$Date, Method_F_16$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 4', xlab='', ylab='ET (mm)',
+     main='ET - soil depth 16"', xlab='', ylab='ET (mm)',
      ylim=c(0, 5))
 
-# soil depth 5
-SM5=sm5*(sd5-sd2)/100 # soil moisture (mm)
+# soil depth 29"
+wc29=wc29*(sd29-sd16)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -1474,7 +663,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM5[low_val:hig_val]
+  y=wc29[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -1492,36 +681,36 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 5', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 29"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor5=data.frame(Date=data.101$Date.101, SM=SM5, f1, f2) # data frame with the results for sensor5
+Method_F_29=data.frame(Date=data$Date, wc=wc29, f1, f2) # data frame with the results for Method_F_29
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor5$ET=c(rep(NA, n)) # create ET column
+Method_F_29$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor5$f1[i]<0 & sensor5$f2[i]>0) {sensor5$ET[i]=abs(sensor5$f1[i])} 
+  if (Method_F_29$f1[i]<0 & Method_F_29$f2[i]>0) {Method_F_29$ET[i]=abs(Method_F_29$f1[i])} 
 }
 
 for (i in 1:n) {
-  if (data.101$Zr[i]<sd2) 
-  {sensor5$ET[i]=NA}
+  if (data$Zr[i]<sd16) 
+  {Method_F_29$ET[i]=NA}
 }
 
-sensor5$ET[is.na(sensor5$ET)]=0 # replaces NA values with zero
-plot(sensor5$Date, sensor5$ET,
+Method_F_29$ET[is.na(Method_F_29$ET)]=0 # replaces NA values with zero
+plot(Method_F_29$Date, Method_F_29$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 5', xlab='', ylab='ET (mm)',
-     ylim=c(0,5))
+     main='ET - soil depth 29"', xlab='', ylab='ET (mm)',
+     ylim=c(0, 15))
 
-# soil depth 6
-SM6=sm6*(sd6-sd3)/100 # soil moisture (mm)
+# soil depth 43"
+wc43=sm43*(wc43-wc29)/100 # soil moisture (mm)
 
 # 1st derivative - slope of the SM curve
 f1=c()   # 1st derivative
@@ -1530,7 +719,7 @@ f1[1]=NA # Non-computable for the first day
 for (i in ((w+1)/2):n) {
   low_val=i-(w-1)/2
   hig_val=i+(w-1)/2
-  y=SM6[low_val:hig_val]
+  y=wc43[low_val:hig_val]
   x=1:w
   reg=lm(y~x)
   f1[i]=reg$coefficients[2]
@@ -1548,333 +737,68 @@ for (i in ((w+1)/2):n) {
   f2[i]=reg$coefficients[2]
 }
 
-plot(data.101$Date.101, f1, 
+plot(data$Date, f1, 
      type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
      ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 6', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
+     main='SM derivatives for soil depth 43"', xlab='', ylab='')
+lines(data$Date, f2, 
       type='o', pch=19, cex=0.8, lwd=3, col='brown2')
 abline(h=0, lwd=3)
 legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
 
-sensor6=data.frame(Date=data.101$Date.101, SM=SM6, f1, f2) # data frame with the results for sensor6
+Method_F_43=data.frame(Date=data$Date, wc=wc43, f1, f2) # data frame with the results for Method_F_43
 
 # Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor6$ET=c(rep(NA, n)) # create ET column
+Method_F_43$ET=c(rep(NA, n)) # create ET column
 for (i in 3:(n-3)) {
-  if (sensor6$f1[i]<0 & sensor6$f2[i]>0) {sensor6$ET[i]=abs(sensor6$f1[i])} 
+  if (Method_F_43$f1[i]<0 & Method_F_43$f2[i]>0) {Method_F_43$ET[i]=abs(Method_F_43$f1[i])} 
 }
 
 for (i in 1:n) {
-  if (data.101$Zr[i]<sd3) 
-  {sensor6$ET[i]=NA}
+  if (data$Zr[i]<sd29) 
+  {Method_F_43$ET[i]=NA}
 }
 
-sensor6$ET[is.na(sensor6$ET)]=0 # replaces NA values with zero
-plot(sensor6$Date, sensor6$ET,
+Method_F_43$ET[is.na(Method_F_43$ET)]=0 # replaces NA values with zero
+plot(Method_F_43$Date, Method_F_43$ET,
      type='h', lwd=3, col='deepskyblue',
-     main='ET from - soil depth 6', xlab='', ylab='ET (mm)',
-     ylim=c(0,5))
-
-# soil depth 7
-SM7=sm7*(sd7-sd4)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM7[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 7', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor7=data.frame(Date=data.101$Date.101, SM=SM7, f1, f2) # data frame with the results for sensor7
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor7$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor7$f1[i]<0 & sensor7$f2[i]>0) {sensor7$ET[i]=abs(sensor7$f1[i])} 
-}
-
-for (i in 1:n) {
-  if (data.101$Zr[i]<sd4) 
-  {sensor7$ET[i]=NA}
-}
-
-sensor7$ET[is.na(sensor7$ET)]=0 # replaces NA values with zero
-plot(sensor7$Date, sensor7$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 7', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
-
-# soil depth 8
-SM8=sm8*(sd8-sd5)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM8[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 7', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor8=data.frame(Date=data.101$Date.101, SM=SM8, f1, f2) # data frame with the results for sensor8
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor8$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor8$f1[i]<0 & sensor8$f2[i]>0) {sensor8$ET[i]=abs(sensor8$f1[i])} 
-}
-
-for (i in 1:n) {
-  if (data.101$Zr[i]<sd5) 
-  {sensor8$ET[i]=NA}
-}
-
-sensor8$ET[is.na(sensor8$ET)]=0 # replaces NA values with zero
-plot(sensor8$Date, sensor8$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 8', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
-
-# soil depth 9
-SM9=sm9*(sd9-sd6)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM9[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 9', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor9=data.frame(Date=data.101$Date.101, SM=SM9, f1, f2) # data frame with the results for sensor9
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor9$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor9$f1[i]<0 & sensor9$f2[i]>0) {sensor9$ET[i]=abs(sensor9$f1[i])} 
-}
-
-for (i in 1:n) {
-  if (data.101$Zr[i]<sd6) 
-  {sensor9$ET[i]=NA}
-}
-
-sensor9$ET[is.na(sensor9$ET)]=0 # replaces NA values with zero
-plot(sensor9$Date, sensor9$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 9', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
-
-# soil depth 10
-SM10=sm10*(sd10-sd7)/100 # soil moisture (mm)
-
-# 1st derivative - slope of the SM curve
-f1=c()   # 1st derivative
-f1[1]=NA # Non-computable for the first day
-
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=SM10[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f1[i]=reg$coefficients[2]
-}
-
-# 2nd derivative - calculate the inflection point
-f2=c()   # 2nd derivative
-f2[1]=NA # Non-computable for the first day
-for (i in ((w+1)/2):n) {
-  low_val=i-(w-1)/2
-  hig_val=i+(w-1)/2
-  y=f1[low_val:hig_val]
-  x=1:w
-  reg=lm(y~x)
-  f2[i]=reg$coefficients[2]
-}
-
-plot(data.101$Date.101, f1, 
-     type='o', pch=19, cex=0.8, lwd=3, col='darkgoldenrod', 
-     ylim=c(min(c(f1,f2),na.rm=T),max(c(f1,f2), na.rm=T)),
-     main='SM derivatives for sensor 10', xlab='', ylab='')
-lines(data.101$Date.101, f2, 
-      type='o', pch=19, cex=0.8, lwd=3, col='brown2')
-abline(h=0, lwd=3)
-legend('topleft', legend=c('1st derivative', '2nd derivative'), col=c('darkgoldenrod', 'brown2'), pch=19, lwd=3, inset=0.01)
-
-sensor10=data.frame(Date=data.101$Date.101, SM=SM10, f1, f2) # data frame with the results for sensor10
-
-# Estimate ET rate - if f1<0 & f2>0: ET=|f1|
-sensor10$ET=c(rep(NA, n)) # create ET column
-for (i in 3:(n-3)) {
-  if (sensor10$f1[i]<0 & sensor10$f2[i]>0) {sensor10$ET[i]=abs(sensor10$f1[i])} 
-}
-
-for (i in 1:n) {
-  if (data.101$Zr[i]<sd7) 
-  {sensor10$ET[i]=NA}
-}
-
-sensor10$ET[is.na(sensor10$ET)]=0 # replaces NA values with zero
-plot(sensor10$Date, sensor10$ET,
-     type='h', lwd=3, col='deepskyblue',
-     main='ET - soil depth 10', xlab='', ylab='ET (mm)',
-     ylim=c(0, 5))
+     main='ET - soil depth 43"', xlab='', ylab='ET (mm)',
+     ylim=c(0, 15))
 
 # Total ET for the left side of the onion bed
-ET.F.L=sensor1$ET+
-       sensor4$ET+
-       sensor7$ET+
-       sensor10$ET
-plot(data.101$Date.101, ET.F.L, 
-     type='h', lwd=2,
-     main='Daily ET - left side', xlab='', ylab='ET (mm)',
+ET.F=Method_F_7$ET+
+     Method_F_16$ET+
+     Method_F_16$ET+
+     Method_F_43$ET
+ET.F[ET.F==0]=NA
+
+plot(data$Date, ET.F, 
+     type='h', lwd=3, col='deepskyblue3',
+     main='Daily ET - method F', xlab='', ylab='ET (mm)',
      ylim=c(0, 12))
+lines(data$Date, ETo, type='l', xlab='2019', ylab='Reference ET (mm)', col='palegreen3', lwd=3)
+legend('topright', legend=c('ETo', 'ET'), col=c('palegreen3', 'darkslategray4'), lwd=2, inset=0.02)
 
 # Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,7,4,1))
-ET=c(sensor10$ET, sensor7$ET, sensor4$ET, sensor1$ET)
+x=data$Date
+y=paste('soil depth', c('43"', '29"', '16"', '7"'))
+ET=c(Method_F_43$ET, Method_F_29$ET, Method_F_16$ET, Method_F_7$ET)
 ET[ET==0]=NA # turns zeros into NAs
 heatmap.data=expand.grid(x=x, y=y)
 ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
   geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - left side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the right side of the onion bed
-ET.F.R=sensor2$ET+
-  sensor5$ET+
-  sensor8$ET+
-  sensor10$ET
-plot(data.101$Date.101, ET.F.R, 
-     type='h', lwd=2,
-     main='Daily ET - right side', xlab='', ylab='ET (mm)',
-     ylim=c(0,12))
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,8,5,2))
-ET=c(sensor10$ET, sensor8$ET, sensor5$ET, sensor2$ET)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - right side') +
-  scale_fill_viridis(direction=-1, na.value='white') +
-  theme_ipsum()
-
-# Total ET for the furrow
-ET.F.F=sensor3$ET+
-  sensor6$ET+
-  sensor9$ET+
-  sensor10$ET
-plot(data.101$Date.101, ET.F.F, 
-     type='h', lwd=2,
-     main='Daily ET - furrow', xlab='', ylab='ET (mm)',
-     ylim=c(0,12))
-
-# Heatmap
-x=data.101$Date.101
-y=paste('sensor', c(10,9,6,3))
-ET=c(sensor10$ET, sensor9$ET, sensor6$ET, sensor3$ET)
-ET[ET==0]=NA # turns zeros into NAs
-heatmap.data=expand.grid(x=x, y=y)
-ggplot(heatmap.data, mapping=aes(x, y, fill=ET),) +
-  geom_tile() +
-  labs(x='', y='', title='Daily ET (mm) - furrow') +
+  labs(x='', y='', title='Daily ET (mm) - method F') +
   scale_fill_viridis(direction=-1, na.value='white') +
   theme_ipsum()
 
 # Comparison of the methods ####
 
-# Left side of the bed
 method=rep(c('A','B', 'C','D','E', 'F'), each=n)
-ET.L=c(ET.A.L, ET.B.L, ET.C.L, ET.D.L, ET.E.L, ET.F.L) # Evapotranspiration
-comparison.L=data.frame(date=data.101$Date.101, method, ET.L)
+ET=c(ET.A, ET.B, ET.C, ET.D, ET.E, ET.F) # Evapotranspiration
+comparison=data.frame(date=data$Date, method, ET)
 
 # Box-plot for ET
-ggplot(comparison.L, aes(x = method, y = ET.L, fill = date)) +
+ggplot(comparison, aes(x = method, y = ET, fill = date)) +
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
   theme_ipsum() +
@@ -1882,53 +806,52 @@ ggplot(comparison.L, aes(x = method, y = ET.L, fill = date)) +
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("Daily ET method comparison - left side") +
+  ggtitle("Daily ET method comparison") +
   xlab("Methods")+ylab("ET (mm)") + 
   geom_boxplot(color="black", fill="darkslategray3")
 
-# Right side of the bed
-method=rep(c('A','B', 'C','D','E', 'F'), each=n)
-ET.R=c(ET.A.R, ET.B.R, ET.C.R, ET.D.R, ET.E.R, ET.F.R) # Evapotranspiration
-comparison.R=data.frame(date=data.101$Date.101, method, ET.R)
+# Results ####
+Results=data.frame(Date=as.Date(data$Date), Irrigation=data$Irrigation, ETo, ET.A, ET.B, ET.C, ET.D, ET.E, ET.F)
 
-# Box-plot for ET
-ggplot(comparison.R, aes(x = method, y = ET.R, fill = date)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
-  theme_ipsum() +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Daily ET method comparison - right side") +
-  xlab("Methods")+ylab("ET (mm)") + 
-  geom_boxplot(color="black", fill="darkslategray3")
+# ET for Irrigation days
+for (i in 1:n) {
+  if (Results$Irrigation[i]=1)
+  {Results$ETo[i]=Results$ET.A[i]=Results$ET.B[i]=Results$ET.C[i]=Results$ET.D[i]=Results$ET.E[i]=Results$ET.F[i]}
+}
 
-# Furrow
-method=rep(c('A','B', 'C','D','E', 'F'), each=n)
-ET.F=c(ET.A.F, ET.B.F, ET.C.F, ET.D.F, ET.E.F, ET.F.F) # Evapotranspiration
-comparison.F=data.frame(date=data.101$Date.101, method, ET.F)
+# Calculate Kc=ET/ETo ####
+Kc.A=ET.A/ETo
+Kc.B=ET.B/ETo
+Kc.C=ET.C/ETo
+Kc.D=ET.D/ETo
+Kc.E=ET.E/ETo
+Kc.F=ET.F/ETo
 
-# Box-plot for ET
-ggplot(comparison.F, aes(x = method, y = ET.F, fill = date)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
-  theme_ipsum() +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Daily ET method comparison - furrow") +
-  xlab("Methods")+ylab("ET (mm)") + 
-  geom_boxplot(color="black", fill="darkslategray3")
+Results=data.frame(Date=as.Date(data$Date), Irrigation=data$Irrigation, ETo, ET.A, Kc.A, ET.B, Kc.B, ET.C, Kc.C, ET.D, Kc.D, ET.E, Kc.E, ET.F, Kc.F)
 
+# Eliminate Kc values greater than 1.3 - FAO 56
+Results$Kc.A[is.na(Results$Kc.A)]=0
+Results[is.na(Results)]=0
 
-# Save the results ####
-Results.L=data.frame(Date=data.101$Date.101, ETo, ET.A.L, ET.B.L, ET.C.L, ET.D.L, ET.E.L, ET.F.L)
-write_xlsx(Results.L, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.L.xlsx") 
+for (i in 1:n) {
+  if (Results$Kc.A[i] > 1.3) {Results$Kc.A[i]=Results$ET.A[i]=0}
+}
+for (i in 1:n) {
+  if (Results$Kc.B[i] > 1.3) {Results$Kc.B[i]=Results$ET.B[i]=0}
+}
+for (i in 1:n) {
+  if (Results$Kc.C[i] > 1.3) {Results$Kc.C[i]=Results$ET.C[i]=0}
+}
+for (i in 1:n) {
+  if (Results$Kc.D[i] > 1.3) {Results$Kc.D[i]=Results$ET.D[i]=0}
+}
+for (i in 1:n) {
+  if (Results$Kc.E[i] > 1.3) {Results$Kc.E[i]=Results$ET.E[i]=0}
+}
+for (i in 1:n) {
+  if (Results$Kc.F[i] > 1.3) {Results$Kc.F[i]=Results$ET.F[i]=0}
+}
 
-Results.R=data.frame(Date=data.101$Date.101, ETo, ET.A.R, ET.B.R, ET.C.R, ET.D.R, ET.E.R, ET.F.R)
-write_xlsx(Results.R, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.R.xlsx") 
+# Save in datasheet 
+write_xlsx(Results, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.xlsx") 
 
-Results.F=data.frame(Date=data.101$Date.101, ETo, ET.A.F, ET.B.F, ET.C.F, ET.D.F, ET.E.F, ET.F.F)
-write_xlsx(Results.F, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.F.xlsx") 
