@@ -859,6 +859,6 @@ for (i in 1:n) {
 }
 
 # Save in datasheet ####
-Results[4:16==0]=NA
-write_xlsx(Results, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.xlsx") 
+Results[4:15][Results[4:15]==0]=NA
+write_xlsx(Results, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.101.xlsx") 
 
