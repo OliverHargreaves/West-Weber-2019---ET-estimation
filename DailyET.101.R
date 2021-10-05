@@ -812,31 +812,37 @@ ggplot(comparison, aes(x = method, y = ET, fill = date)) +
 
 # Results ####
 Results=data.frame(Date=as.Date(data$Date), Irrigation=data$Irrigation, ETo, ET.A, ET.B, ET.C, ET.D, ET.E, ET.F)
-
-# ET for Irrigation days
-for (i in 1:n) {
-  if (Results$Irrigation[i]=1)
-  {Results$ETo[i]=Results$ET.A[i]=Results$ET.B[i]=Results$ET.C[i]=Results$ET.D[i]=Results$ET.E[i]=Results$ET.F[i]}
-}
-
-# Calculate Kc=ET/ETo ####
-Kc.A=ET.A/ETo
-Kc.B=ET.B/ETo
-Kc.C=ET.C/ETo
-Kc.D=ET.D/ETo
-Kc.E=ET.E/ETo
-Kc.F=ET.F/ETo
-
-Results=data.frame(Date=as.Date(data$Date), Irrigation=data$Irrigation, ETo, ET.A, Kc.A, ET.B, Kc.B, ET.C, Kc.C, ET.D, Kc.D, ET.E, Kc.E, ET.F, Kc.F)
-
-# Eliminate Kc values greater than 1.3 - FAO 56
-Results$Kc.A[is.na(Results$Kc.A)]=0
 Results[is.na(Results)]=0
 
+# Irrigation days: ET=ETo ####
+for (i in 1:n) {
+  if (Results$Irrigation[i]==1) 
+  {Results$ET.A[i]=Results$ETo[i]
+   Results$ET.B[i]=Results$ETo[i]
+   Results$ET.C[i]=Results$ETo[i]
+   Results$ET.D[i]=Results$ETo[i]
+   Results$ET.E[i]=Results$ETo[i]
+   Results$ET.F[i]=Results$ETo[i]}
+}
+
+
+# Calculate Kc=ET/ETo ####
+Kc.A=Results$ET.A/ETo
+Kc.B=Results$ET.B/ETo
+Kc.C=Results$ET.C/ETo
+Kc.D=Results$ET.D/ETo
+Kc.E=Results$ET.E/ETo
+Kc.F=Results$ET.F/ETo
+
+Results=data.frame(Date=as.Date(data$Date), Irrigation=data$Irrigation, ETo, 
+                   ET.A=Results$ET.A, Kc.A, ET.B=Results$ET.B, Kc.B, ET.C=Results$ET.C, Kc.C,
+                   ET.D=Results$ET.D, Kc.D, ET.E=Results$ET.E, Kc.E, ET.F=Results$ET.F, Kc.F)
+
+# Eliminate Kc values greater than 1.3 - FAO 56
 for (i in 1:n) {
   if (Results$Kc.A[i] > 1.3) {Results$Kc.A[i]=Results$ET.A[i]=0}
 }
-for (i in 1:n) {
+for (i in 1:n) { 
   if (Results$Kc.B[i] > 1.3) {Results$Kc.B[i]=Results$ET.B[i]=0}
 }
 for (i in 1:n) {
@@ -852,6 +858,7 @@ for (i in 1:n) {
   if (Results$Kc.F[i] > 1.3) {Results$Kc.F[i]=Results$ET.F[i]=0}
 }
 
-# Save in datasheet 
+# Save in datasheet ####
+Results[4:16==0]=NA
 write_xlsx(Results, path="C:/Users/graduate/Box/DiviningWater/WestWeber2019/Soil sensor data/Sensor 101/Results.xlsx") 
 
