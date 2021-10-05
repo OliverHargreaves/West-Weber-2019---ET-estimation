@@ -6,6 +6,8 @@ library(ggplot2)
 library(viridis)
 library(hrbrthemes)
 library(multcompView)
+library(lubridate)
+library(dplyr)
 
 # Load data ####
 data=read_excel("Results.101.xlsx") # load the SM data from excel
@@ -97,6 +99,27 @@ plot(data$Date, data$Kc.F,
      main='Kc - Method F', xlab='', ylab='ET/ETo',
      ylim=c(0, 1.3))
 
+# Weekly ET ####
+
+data$Week=floor_date(data$Date, "week") # Adds a week field in the data
+
+ET.wkly=data %>%
+  group_by(Week) %>%
+  summarize(ET.A=sum(ET.A),   # Calculates the weekly sum for method A, ...
+            ET.B=sum(ET.B), 
+            ET.C=sum(ET.C),
+            ET.D=sum(ET.D),
+            ET.E=sum(ET.E),
+            ET.F=sum(ET.F),)
+
+plot (ET.wkly$Week, ET.wkly$ET.A, type='l', lwd=3, pch=5, col='aquamarine', main='Weekly ET', xlab='', ylab='ET (mm)')
+lines(ET.wkly$Week, ET.wkly$ET.B, type='l', lwd=3, pch=5, col='chocolate')
+lines(ET.wkly$Week, ET.wkly$ET.C, type='l', lwd=3, pch=5, col='chartreuse')
+lines(ET.wkly$Week, ET.wkly$ET.D, type='l', lwd=3, pch=5, col='goldenrod')
+lines(ET.wkly$Week, ET.wkly$ET.E, type='l', lwd=3, pch=5, col='brown1')
+lines(ET.wkly$Week, ET.wkly$ET.F, type='l', lwd=3, pch=5, col='deeppink')
+legend('bottom', legend=c(paste('Method', LETTERS[seq(from=1, to=6)])), col=c('aquamarine', 'chocolate', 'chartreuse', 'goldenrod', 'brown1', 'deeppink'), lwd=3, inset=0.02, ncol=2)  
+
 # Cumulative ET time series ####
 ET.A.cum=cumsum(data$ET.A)
 ET.B.cum=cumsum(data$ET.B)
@@ -105,34 +128,34 @@ ET.D.cum=cumsum(data$ET.D)
 ET.E.cum=cumsum(data$ET.E)
 ET.F.cum=cumsum(data$ET.F)
 
-plot(data$Date, ET.A.cum, type='l', lwd=2, col='aquamarine', main='Cumulative ET', xlab='', ylab='ET (mm)')
-lines(data$Date, ET.B.cum, type='l', lwd=2, col='chocolate')
-lines(data$Date, ET.C.cum, type='l', lwd=2, col='chartreuse')
-lines(data$Date, ET.D.cum, type='l', lwd=2, col='goldenrod')
-lines(data$Date, ET.E.cum, type='l', lwd=2, col='brown1')
-lines(data$Date, ET.F.cum, type='l', lwd=2, col='deeppink')
+plot (data$Date, ET.A.cum, type='l', lwd=3, pch=5, col='aquamarine', main='Cumulative ET', xlab='', ylab='ET (mm)')
+lines(data$Date, ET.B.cum, type='l', lwd=3, pch=5, col='chocolate')
+lines(data$Date, ET.C.cum, type='l', lwd=3, pch=5, col='chartreuse')
+lines(data$Date, ET.D.cum, type='l', lwd=3, pch=5, col='goldenrod')
+lines(data$Date, ET.E.cum, type='l', lwd=3, pch=5, col='brown1')
+lines(data$Date, ET.F.cum, type='l', lwd=3, pch=5, col='deeppink')
 legend('topleft', legend=c(paste('Method', LETTERS[seq(from=1, to=6)])), col=c('aquamarine', 'chocolate', 'chartreuse', 'goldenrod', 'brown1', 'deeppink'), lwd=3, inset=0.02)  
 
 
 # Calculate summary statistics ####
 summ=summary(data[4:15])
 
-ETo.sum=sum(data$ETo)
-ET.A.sum=sum(data$ET.A)
-ET.B.sum=sum(data$ET.B)
-ET.C.sum=sum(data$ET.C)
-ET.D.sum=sum(data$ET.D)
-ET.E.sum=sum(data$ET.E)
-ET.F.sum=sum(data$ET.F)
+ETo.szn=sum(data$ETo)
+ET.A.szn=sum(data$ET.A)
+ET.B.szn=sum(data$ET.B)
+ET.C.szn=sum(data$ET.C)
+ET.D.szn=sum(data$ET.D)
+ET.E.szn=sum(data$ET.E)
+ET.F.szn=sum(data$ET.F)
 Method=c('A','B','C','D','E','F')
-sum.df=data.frame(Method, ET.Season=c(ET.A.sum, ET.B.sum, ET.C.sum, ET.D.sum, ET.E.sum, ET.F.sum))
+sum.df=data.frame(Method, ET.Season=c(ET.A.szn, ET.B.szn, ET.C.szn, ET.D.szn, ET.E.szn, ET.F.szn))
 
 plot(1:6, sum.df$ET.Season, 
      main='Total ET for the season', xlab='Method', ylab='ET (mm)', ylim=c(0, max(sum.df$ET.Season)), xaxt='n',
      type='h', lwd=8, col='darkturquoise')
 axis(1, at=1:6, labels=Method)
 
-abline(h=ETo.sum, col='darkseagreen3', lwd=8)
+abline(h=ETo.szn, col='darkseagreen3', lwd=8)
 
 
 # Box plots ####
@@ -140,10 +163,10 @@ n=length(data$Date)
 method=rep(c('A','B', 'C','D','E', 'F'), each=n)
 ET=c(data$ET.A, data$ET.B, data$ET.C, data$ET.D, data$ET.E, data$ET.F) # Evapotranspiration
 Kc=c(data$Kc.A, data$Kc.B, data$Kc.C, data$Kc.D, data$Kc.E, data$Kc.F) # Evapotranspiration
-Left.df=data.frame(date=data$Date, method, ET, Kc)
+methods.df=data.frame(date=data$Date, method, ET, Kc)
   
 # ET 
-ggplot(Left.df, aes(x = method, y = ET, fill = date)) +
+ggplot(methods.df, aes(x = method, y = ET, fill = date)) +
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
   theme_ipsum() +
@@ -156,7 +179,7 @@ ggplot(Left.df, aes(x = method, y = ET, fill = date)) +
   geom_boxplot(color="black", fill="darkturquoise")
 
 # Kc 
-ggplot(Left.df, aes(x = method, y = Kc, fill = date)) +
+ggplot(methods.df, aes(x = method, y = Kc, fill = date)) +
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
   theme_ipsum() +
@@ -171,7 +194,7 @@ ggplot(Left.df, aes(x = method, y = Kc, fill = date)) +
 # Violin plots ####
 
 # ET 
-ggplot(Left.df, aes(x = method, y = ET, fill = date)) +
+ggplot(methods.df, aes(x = method, y = ET, fill = date)) +
   geom_violin() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
   theme_ipsum() +
@@ -184,7 +207,7 @@ ggplot(Left.df, aes(x = method, y = ET, fill = date)) +
   geom_violin(color="black", fill="darkturquoise")
 
 # Kc 
-ggplot(Left.df, aes(x = method, y = Kc, fill = date)) +
+ggplot(methods.df, aes(x = method, y = Kc, fill = date)) +
   geom_violin() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6, option="A") +
   theme_ipsum() +
@@ -199,22 +222,22 @@ ggplot(Left.df, aes(x = method, y = Kc, fill = date)) +
 # ANOVA + Tukey test ####
 
 # ET
-model=lm( Left.df$ET ~ Left.df$method )
+model=lm( methods.df$ET ~ methods.df$method )
 ANOVA=aov(model)
 
 # Tukey test to study each pair of treatment :
-TUKEY <- TukeyHSD(x=ANOVA, 'Left.df$method', confevel=0.95)
+TUKEY.ET=TukeyHSD(x=ANOVA, 'methods.df$method', confevel=0.95)
 
 # Tuckey test representation :
-plot(TUKEY , las=1 , col="brown")
+plot(TUKEY.ET , las=1 , col="brown")
 
 # Kc
-model=lm(Left.df$Kc ~ Left.df$method)
+model=lm(methods.df$Kc ~ methods.df$method)
 ANOVA=aov(model)
 
 # Tukey test to study each pair of treatment :
-TUKEY <- TukeyHSD(x=ANOVA, 'Left.df$method', confevel=0.95)
+TUKEY.Kc=TukeyHSD(x=ANOVA, 'methods.df$method', confevel=0.95)
 
 # Tuckey test representation :
-plot(TUKEY , las=1 , col="brown")
+plot(TUKEY.Kc , las=1 , col="brown")
 
